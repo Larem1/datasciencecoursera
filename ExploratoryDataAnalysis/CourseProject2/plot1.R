@@ -22,7 +22,7 @@ pm25<-readRDS("./data/summarySCC_pm25.rds")
 totpm<-pm25 %>% group_by(year) %>%
   summarise(Totalpm = sum(Emissions))
 
-#creat the plot of total pm by year
+#create the plot of total pm by year
 plot(totpm$year,totpm$Totalpm/1000000,xlab = "Year", 
      ylab = "Total pm25 Emissions (in millions of Tons)", 
      main = "US Total PM Emmissions per Year")
