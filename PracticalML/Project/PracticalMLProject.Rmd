@@ -1,0 +1,217 @@
+---
+title: "Practical ML Project"
+author: "Anthony Cazares"
+date: "2023-04-29"
+output:
+  rmdformats::downcute: null
+  downcute_theme: chaos
+  defualt_theme: dark
+  html: default
+  html_document:
+    keep_md: yes
+---
+
+<style type="text/css">
+  body{
+  font-size: 16pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE,
+                      error = FALSE,     # suppress errors
+                      message = FALSE,   # suppress messages
+                      warning = FALSE)   # suppress warnings
+set.seed(456)
+```
+
+```{r}
+library(AppliedPredictiveModeling)
+library(caret)
+library(lubridate)
+library(pgmm)
+library(rpart)
+library(gbm)
+library(forecast)
+library(xgboost)
+library(Amelia)
+library(randomForest)
+library(tidyverse)
+```
+
+# Load Data
+
+```{r}
+testing <- read.csv("~\\GitHub\\JohnsHopkinsCourse\\datasciencecoursera\\PracticalML\\Project\\pml-testing.csv")
+
+training <- read.csv("~\\GitHub\\JohnsHopkinsCourse\\datasciencecoursera\\PracticalML\\Project\\pml-training.csv")
+```
+
+# Create Data Partitions
+
+This will allow me to estimate the out of sample accuracy/error rate. Will create a partition of the testing data as a test set.
+
+```{r}
+inTrain <- createDataPartition(training$classe,times = 1, p = 0.8, list = FALSE)
+training <- training[inTrain,]
+testtrain <- training[-inTrain,]
+```
+
+# Fix Data
+
+The "classe" value is a factor variable.
+
+```{r}
+training$classe <- as.factor(training$classe)
+testtrain$classe <- as.factor(testtrain$classe)
+```
+
+Find variables without missing values to not have NA problems in fitting models.
+
+```{r}
+fullvars <- c()
+for (col in colnames(training)) {
+  if(sum(!is.na(training[,col]))/15699>0.9){
+    fullvars <- c(fullvars, col)
+  }
+}
+```
+
+Create Data with the columns that dont have missing values
+
+```{r}
+fulltr <- training[,fullvars]
+```
+
+Confirming there is nothing missing.
+
+```{r}
+missmap(fulltr)
+```
+
+There are too many variables. Will try to weed out the nonimportant variables by fitting a default random forest then using Variable importance function.
+
+Default Random Forest
+
+```{r}
+rf1 <- randomForest(classe~., 
+                    data = fulltr,
+                    treesize=1000)
+```
+
+Saving the Important Variables
+
+```{r}
+impVars <- varImp(rf1) %>% arrange(-Overall) %>%
+  filter(Overall >800) %>% row.names()
+```
+
+Checking the missingness of the important variables
+
+```{r}
+imptraining <- training %>% select(impVars, classe)
+missmap(imptraining)
+```
+
+# Cross-Validation
+
+10-Fold Cross Validation only once to save time.
+
+```{r}
+cvcontrol <- trainControl(## 10-fold CV
+                           method = "repeatedcv",
+                           number = 10,
+                           ## repeated ten times
+                           repeats = 1)
+```
+
+
+# Train Models 
+
+Stochastic Gradient Boosting, Random Forest, and Linear Discriminant Analysis
+
+```{r, cache=TRUE}
+set.seed(321)
+
+gbmFit1 <- train(classe ~ ., 
+                 data = imptraining, 
+                 method = "gbm", 
+                 trControl = cvcontrol,
+                 verbose = FALSE)
+
+rfFit1 <- train(classe~.,
+                data = imptraining,
+                method = "rf",
+                trControl = cvcontrol)
+
+ldaFit1 <- train(classe~.,
+                data = imptraining,
+                method = "lda",
+                trControl = cvcontrol)
+
+```
+
+# Model Accuracy
+
+Stochastic Gradient Boosting has an accuracy of 99.98% as seen below.
+
+```{r}
+gbmFit1
+```
+
+Random Forest has an accuracy of 99.99% as well as seen below.
+
+```{r}
+rfFit1
+```
+
+Linear Discriminant Analysis has an accuracy of 95.94% as seen below.
+
+```{r}
+ldaFit1
+```
+
+# Out of Sample Error
+
+Now we can estimate the out of sample error with the testing sample we partitioned before. I will predict with each model and check accuracy.
+
+Out of sample accuracy for Stochastic Gradient Boosting
+
+```{r}
+gbmpred1 <- predict(gbmFit1, testtrain)
+
+sum(gbmpred1==testtrain$classe)/length(gbmpred1)
+```
+
+Out of sample accuracy for Random Forest
+
+```{r}
+rfpred1 <- predict(rfFit1, testtrain)
+
+sum(rfpred1==testtrain$classe)/length(rfpred1)
+```
+
+Out of sample accuracy for Linear Discriminant Analysis
+
+```{r}
+ldapred1 <- predict(ldaFit1, testtrain)
+
+sum(ldapred1==testtrain$classe)/length(ldapred1)
+```
+
+Stochastic Gradient Boost and Random Forest get an estimated 100% accuracy on the out of sample testing set and Linear Discriminant Analysis get 95.67%. 
+
+# Final Predictions
+
+I will use Stochastic Gradient Boosting for my predictions for the final Test set of 20 samples.
+
+```{r}
+finalpred <- predict(gbmFit1, testing)
+```
+
+The model predicts they will all be classe A, crossing my fingers. 
+
+
+
+
+
