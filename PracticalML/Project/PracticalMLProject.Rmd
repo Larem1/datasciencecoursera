@@ -2,13 +2,7 @@
 title: "Practical ML Project"
 author: "Anthony Cazares"
 date: "2023-04-29"
-output:
-  rmdformats::downcute: null
-  downcute_theme: chaos
-  defualt_theme: dark
-  html: default
-  html_document:
-    keep_md: yes
+output: html_document
 ---
 
 <style type="text/css">
