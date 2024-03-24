@@ -1,0 +1,85 @@
+---
+title: ""
+author: ""
+date: "2023-06-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+library(plotly)
+```
+
+```{r}
+rev <- read_xlsx("C:\\Users\\all\\Downloads\\revving.xlsx")
+idle <- read_xlsx("C:\\Users\\all\\Downloads\\idle.xlsx")
+```
+
+```{r}
+rev2 <- lapply(rev, gsub, pattern='-', replacement='')
+rev2 <- as.data.frame(rev2)
+
+idle2 <- lapply(idle, gsub, pattern='-', replacement='')
+idle2 <- as.data.frame(idle2)
+```
+
+```{r}
+dtime <- str_split(idle2$Device.Time, pattern = " ", simplify = TRUE)
+idle2$Device.Time <- dtime[,2]
+
+dtime2 <- str_split(rev2$Device.Time, pattern = " ", simplify = TRUE)
+rev2$Device.Time <- dtime2[,2]
+```
+
+```{r}
+idle2 <- idle2 %>% mutate(Device.Time = strptime(Device.Time, format = "%H:%M:%OS"),
+                          O2b1s1 = as.numeric(O2.Bank.1.Sensor.1.Voltage.V.),
+                          O2b1s2 = as.numeric(O2.Bank.1.Sensor.2.Voltage.V.),
+                          O2b2s1 = as.numeric(O2.Bank.2.Sensor.1.Voltage.V.),
+                          O2b2s2 = as.numeric(O2.Bank.2.Sensor.2.Voltage.V.),
+                          rpm = as.numeric(Engine.RPM.rpm.),
+                          Dtime = as.POSIXct(Device.Time,format = "%H:%M:%OS"))
+rev2 <- rev2 %>% mutate(Device.Time = strptime(Device.Time, format = "%H:%M:%OS"),
+                          O2b1s1 = as.numeric(O2.Bank.1.Sensor.1.Voltage.V.),
+                          O2b1s2 = as.numeric(O2.Bank.1.Sensor.2.Voltage.V.),
+                          O2b2s1 = as.numeric(O2.Bank.2.Sensor.1.Voltage.V.),
+                          O2b2s2 = as.numeric(O2.Bank.2.Sensor.2.Voltage.V.),
+                          rpm = as.numeric(Engine.RPM.rpm.),
+                          Dtime = as.POSIXct(Device.Time,format = "%H:%M:%OS"))
+```
+
+
+```{r}
+idleplot <- ggplot(data = idle2)+
+  geom_line(aes(x=Dtime,y=rpm/3000))+
+  geom_line(aes(x=Dtime,y=O2b1s1),col = "red")+
+  geom_line(aes(x=Dtime,y=O2b1s2),col = "pink")+
+  geom_line(aes(x=Dtime,y=O2b2s1),col = "blue")+
+  geom_line(aes(x=Dtime,y=O2b2s2),col = "purple")+
+  labs(title = "Idle", x = "time", y = "volts")
+ggplotly(idleplot)
+```
+
+```{r}
+revplot <- ggplot(data = rev2)+
+  geom_line(aes(x=Dtime,y=rpm/3000))+
+  geom_line(aes(x=Dtime,y=O2b1s1),col = "red")+
+  geom_line(aes(x=Dtime,y=O2b1s2),col = "pink")+
+  geom_line(aes(x=Dtime,y=O2b2s1),col = "blue")+
+  geom_line(aes(x=Dtime,y=O2b2s2),col = "purple")+
+  labs(title = "Rev", x = "time", y = "volts")
+ggplotly(revplot)
+```
+
+
+
+
+

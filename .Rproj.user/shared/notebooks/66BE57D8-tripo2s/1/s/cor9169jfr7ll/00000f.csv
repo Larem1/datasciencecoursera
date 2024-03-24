@@ -1,0 +1,3 @@
+"0","dtime <- str_split(trip2$Device.Time, pattern = "" "", simplify = TRUE)"
+"0","trip2$Device.Time <- dtime[,2]"
+"0",""

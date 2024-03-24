@@ -1,0 +1,5 @@
+"0","dtime <- str_split(idle2$Device.Time, pattern = "" "", simplify = TRUE)"
+"0","idle2$Device.Time <- dtime[,2]"
+"0",""
+"0","dtime2 <- str_split(rev2$Device.Time, pattern = "" "", simplify = TRUE)"
+"0","rev2$Device.Time <- dtime2[,2]"

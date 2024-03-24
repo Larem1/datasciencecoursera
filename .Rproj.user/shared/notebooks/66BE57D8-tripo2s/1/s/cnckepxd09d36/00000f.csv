@@ -1,0 +1,3 @@
+"0","trip2 <- lapply(trip, gsub, pattern='^-$', replacement='')"
+"0","trip2 <- as.data.frame(trip2)"
+"0",""

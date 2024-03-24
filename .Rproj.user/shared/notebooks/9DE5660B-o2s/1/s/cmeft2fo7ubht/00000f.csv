@@ -1,0 +1,7 @@
+"0","revplot <- ggplot(data = rev2)+"
+"0","  geom_line(aes(x=Dtime,y=rpm/3000))+"
+"0","  geom_line(aes(x=Dtime,y=O2b1s1),col = ""red"")+"
+"0","  geom_line(aes(x=Dtime,y=O2b1s2),col = ""pink"")+"
+"0","  geom_line(aes(x=Dtime,y=O2b2s1),col = ""blue"")+"
+"0","  geom_line(aes(x=Dtime,y=O2b2s2),col = ""purple"")"
+"0","ggplotly(revplot)"

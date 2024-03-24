@@ -1,0 +1,5 @@
+"0","rev2 <- lapply(rev, gsub, pattern='-', replacement='')"
+"0","rev2 <- as.data.frame(rev2)"
+"0",""
+"0","idle2 <- lapply(idle, gsub, pattern='-', replacement='')"
+"0","idle2 <- as.data.frame(idle2)"

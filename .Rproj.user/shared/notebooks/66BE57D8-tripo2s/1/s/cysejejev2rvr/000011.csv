@@ -1,0 +1,8 @@
+"0","tripplot <- ggplot(data = trip2)+"
+"0","  geom_line(aes(x=Dtime,y=rpm/max(trip2$rpm)))+"
+"0","  geom_line(aes(x=Dtime,y=O2b1s1),col = ""red"")+"
+"0","  geom_line(aes(x=Dtime,y=O2b1s2),col = ""pink"")+"
+"0","  geom_line(aes(x=Dtime,y=O2b2s1),col = ""blue"")+"
+"0","  geom_line(aes(x=Dtime,y=O2b2s2),col = ""purple"")+"
+"0","  labs(title = ""Idle"", x = ""time"", y = ""volts"")"
+"0","ggplotly(tripplot)"

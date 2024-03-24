@@ -1,0 +1,115 @@
+---
+title: "Tripdata"
+author: "Larem"
+date: "2023-06-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+library(plotly)
+```
+
+```{r}
+trip <- read_xlsx("C:\\Users\\all\\Downloads\\osidetrip1.xlsx")
+```
+
+```{r}
+trip2 <- lapply(trip, gsub, pattern='^-$', replacement='')
+trip2 <- as.data.frame(trip2)
+
+```
+
+```{r}
+dtime <- str_split(trip2$Device.Time, pattern = " ", simplify = TRUE)
+trip2$Device.Time <- dtime[,2]
+
+```
+
+```{r}
+trip2 <- trip2 %>% mutate(Device.Time = strptime(Device.Time, format = "%H:%M:%OS"),
+                          O2b1s1 = as.numeric(O2.Bank.1.Sensor.1.Voltage.V.),
+                          O2b1s2 = as.numeric(O2.Bank.1.Sensor.2.Voltage.V.),
+                          O2b2s1 = as.numeric(O2.Bank.2.Sensor.1.Voltage.V.),
+                          O2b2s2 = as.numeric(O2.Bank.2.Sensor.2.Voltage.V.),
+                          LTFTB1 = as.numeric(Fuel.Trim.Bank.1.Long.Term...),
+                          LTFTB2 = as.numeric(Fuel.Trim.Bank.2.Long.Term...),
+                          STFTB1 = as.numeric(Fuel.Trim.Bank.1.Short.Term...),
+                          STFTB2 = as.numeric(Fuel.Trim.Bank.2.Short.Term...),
+                          rpm = as.numeric(Engine.RPM.rpm.),
+                          maf=as.numeric(Mass.Air.Flow.Rate.g.s.),
+                          Dtime = as.POSIXct(Device.Time,format = "%H:%M:%OS"))
+```
+
+
+```{r}
+tripplot <- ggplot(data = trip2)+
+  geom_line(aes(x=Dtime,y=rpm/max(trip2$rpm)))+
+  geom_line(aes(x=Dtime,y=O2b1s1),col = "red")+
+  geom_line(aes(x=Dtime,y=O2b1s2),col = "pink")+
+  geom_line(aes(x=Dtime,y=O2b2s1),col = "blue")+
+  geom_line(aes(x=Dtime,y=O2b2s2),col = "purple")+
+  labs(title = "O2 B1/2 S1/2", x = "time", y = "volts")
+ggplotly(tripplot)
+```
+
+```{r}
+trimplot <- ggplot(data = trip2)+
+  geom_line(aes(x=Dtime,y=(rpm/max(trip2$rpm))*20))+
+  geom_line(aes(x=Dtime,y=LTFTB1),col = "red")+
+  geom_line(aes(x=Dtime,y=STFTB1),col = "pink")+
+  geom_line(aes(x=Dtime,y=LTFTB2),col = "blue")+
+  geom_line(aes(x=Dtime,y=STFTB2),col = "purple")+
+  labs(title = "LT/ST FT", x = "time", y = "%")
+ggplotly(trimplot)
+```
+
+
+```{r}
+fts2plot <- ggplot(data = trip2)+
+  geom_line(aes(x=Dtime,y=(rpm/max(trip2$rpm))*20))+
+#  geom_line(aes(x=Dtime,y=LTFTB2/9),col = "red")+
+  geom_line(aes(x=Dtime,y=STFTB2),col = "pink")+
+  geom_line(aes(x=Dtime,y=O2b2s1),col = "blue")+
+#  geom_line(aes(x=Dtime,y=O2b2s2),col = "purple")+
+  labs(title = "LT/ST FT", x = "time", y = "%")
+ggplotly(fts2plot)
+```
+
+```{r}
+mafplot <- ggplot(data = trip2)+
+  geom_line(aes(x=Dtime,y=(rpm/max(trip2$rpm))*20))+
+#  geom_line(aes(x=Dtime,y=LTFTB2/9),col = "red")+
+  geom_line(aes(x=Dtime,y=STFTB2),col = "pink")+
+#  geom_line(aes(x=Dtime,y=maf),col = "pink")+
+#  geom_line(aes(x=Dtime,y=O2b2s1),col = "blue")+
+  geom_line(aes(x=Dtime,y=O2b2s2),col = "purple")+
+  labs(title = "LT/ST FT", x = "time", y = "%")
+ggplotly(mafplot)
+```
+
+```{r}
+o2splot <- ggplot(data = trip2)+
+  geom_line(aes(x=Dtime,y=(rpm/max(trip2$rpm))*20))+
+#  geom_line(aes(x=Dtime,y=LTFTB2/9),col = "red")+
+  geom_line(aes(x=Dtime,y=O2b1s2),col = "pink")+
+#  geom_line(aes(x=Dtime,y=STFTB2),col = "pink")+
+#  geom_line(aes(x=Dtime,y=maf),col = "pink")+
+#  geom_line(aes(x=Dtime,y=O2b2s1),col = "blue")+
+  geom_line(aes(x=Dtime,y=O2b2s2),col = "purple")+
+  labs(title = "LT/ST FT", x = "time", y = "%")
+ggplotly(o2splot)
+```
+
+
+
+
+

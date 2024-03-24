@@ -72,8 +72,10 @@ last_mean_data <- mean_std_data %>%
   summarise_all(.funs = mean)
 
 #output the final tidy data set 
-write.table(last_mean_data, "tidydata.txt")
+write.table(last_mean_data, "tidydata.txt", row.names = FALSE)
 
 
-
+new_names <- data.frame(var_means_stds, names(mean_std_data[-c(67,68)]))
+names(new_names) <- c("OriginalName", "TidyName")
+write.table(new_names, "newfeatures.txt")
 

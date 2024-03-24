@@ -1,0 +1,65 @@
+---
+title: "Untitled"
+author: "L"
+date: "2023-07-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+library(plotly)
+```
+
+```{r}
+
+dat1 <- read.csv("C:\\Users\\all\\Documents\\Xrrxx\\xr.csv")
+dat2 <- read.csv("C:\\Users\\all\\Documents\\Xrrxx\\xr2.csv")
+dat3 <- read.csv("C:\\Users\\all\\Documents\\Xrrxx\\xr3.csv")
+
+dat1 <- dat1 %>% select("id", "username", "full_name")
+dat2 <- dat2 %>% select("id", "username", "full_name")
+dat3 <- dat3 %>% select("id", "username", "full_name")
+
+historical<-data.frame("id"=c(),"username"=c(),"full_name"=c())
+
+oldid<-dat1$id
+#newid<-c(dat2$id,6666)
+newid2<-dat2$id
+
+setequal(dat3,dat2)
+
+diffids<-as.data.frame(setdiff(newid2,oldid))
+historical<-rbind(historical,as.data.frame(c(date(),as.data.frame(dat2 %>% filter(id %in% diffids)))))
+
+```
+
+```{r}
+nums1 <- data.frame(numm <- 1:15, let <- letters[1:15])
+nums2 <- data.frame(numm <- 10:25, let <- letters[10:25])
+intersect(nums1,nums2)
+odds <- as.data.frame(setdiff(nums2,nums1))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

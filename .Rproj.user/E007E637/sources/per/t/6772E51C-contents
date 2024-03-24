@@ -1,0 +1,81 @@
+#First set my working directory, i will comment out after
+#setwd("C:/Users/all/Documents/Rprojs/Rproj's/Coursera/JohnHopsCourses/datasciencecoursera/CourseProject")
+
+require(tidyverse) #load required packages
+
+#downloading the zip to working directory
+download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", 
+              destfile = "./projdata.zip") 
+
+#create directory to store data
+dir.create("./data") 
+
+#unzip project data to data directory
+unzip("./projdata.zip", exdir = "./data") 
+
+#read in all the required data sets with read.table
+training_set <- read.table("./data/UCI HAR Dataset/train/X_train.txt")
+test_set <- read.table("./data/UCI HAR Dataset/test/X_test.txt") 
+subject_train <- read.table("./data/UCI HAR Dataset/train/subject_train.txt")
+subject_test <- read.table("./data/UCI HAR Dataset/test/subject_test.txt")
+activity_train <- read.table("./data/UCI HAR Dataset/train/y_train.txt")
+activity_test <- read.table("./data/UCI HAR Dataset/test/y_test.txt")
+var_names <- read.table("./data/UCI HAR Dataset/features.txt")
+activity_labels <- read.table("./data/UCI HAR Dataset/activity_labels.txt")
+
+#combine the test set and training set of data with rbind
+full_data <- rbind(test_set, training_set)
+
+#combine the subject numbers from the test sets and training sets with rbind
+full_subjects <- rbind(subject_test, subject_train)
+
+#combine the activity numbers from the test sets and training sets with rbind
+full_activity_nums <- rbind(activity_test, activity_train)
+
+#join the activity names to the activity numbers using left join and only select the names
+full_activity_names <- left_join(full_activity_nums, activity_labels, by = c("V1"="V1")) %>%
+  select(V2)
+
+#update the full data by combining the subject numbers and the activity names as columns using cbind
+full_data <- cbind(full_data, full_subjects, full_activity_names)
+
+#changing the names of the columns to match the features in features.txt as well as the the two subject number and activity names columns 
+names(full_data) <- c(var_names$V2, "subject", "activity")
+
+#find the columns whos names have mean() or std() in them and store them
+var_means_stds <- var_names$V2[grep("*mean\\(\\)*|*std\\(\\)*", var_names$V2)]
+
+#select the columns whos names have mean() or std() as well as the subject and activity column
+mean_std_data <- full_data %>%
+  select(var_means_stds, subject, activity)
+
+#alter the names of the columns to be readable(tidy) one of the videos said all lowercase? i think that would be worse
+names(mean_std_data) <- names(mean_std_data)  %>%
+  gsub("^t", "Time",.) %>%  #t to Time
+  gsub("^f", "Frequency",.) %>%  #f to Frequency
+  gsub("*Acc*", "Accuracy",.) %>%  #Acc to Accuracy
+  gsub("*Gyro*", "Gyroscope",.) %>%  #Gyro to Gyroscope
+  gsub("*Mag*", "Magnitude",.) %>%  #Mag to Magnitude 
+  gsub("*mean\\(\\)\\-*", "Mean",.) %>%  #mean()- to Mean 
+  gsub("*std\\(\\)\\-*", "StandardDeviation",.) %>%  # std()- to StandardDeviation
+  gsub("-", "",.) %>%  #remove the -
+  gsub("*BodyBody*", "Body",.) #remove the double Body to a single one
+
+#change the class of subject and activity to a factor variable 
+mean_std_data <- mean_std_data %>%
+  mutate(subject = as.factor(subject),
+         activity = as.factor(activity))
+
+#create the final tidy data that has the mean of each variable for each subject in each activity
+last_mean_data <- mean_std_data %>%
+  group_by(subject, activity) %>%
+  summarise_all(.funs = mean)
+
+#output the final tidy data set 
+write.table(last_mean_data, "tidydata.txt", row.names = FALSE)
+
+
+new_names <- data.frame(var_means_stds, names(mean_std_data[-c(67,68)]))
+names(new_names) <- c("OriginalName", "TidyName")
+write.table(new_names, "newfeatures.txt")
+

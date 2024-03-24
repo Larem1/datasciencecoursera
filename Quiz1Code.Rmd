@@ -1,0 +1,96 @@
+---
+title: "John Hopkins Course"
+author: "Anthony"
+date: "2022-10-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+```
+
+
+```{r}
+dataloc<- choose.files()
+quiz1data <- read_csv(dataloc)
+```
+
+```{r}
+quiz1data[1:2,]
+```
+
+```{r}
+quiz1data[152:153,]
+```
+
+```{r}
+quiz1data[47,"Ozone"]
+```
+
+```{r}
+sum(is.na(quiz1data$Ozone))
+```
+
+```{r}
+mean(quiz1data$Ozone, na.rm =  TRUE)
+```
+
+```{r}
+quiz1data %>% filter(Ozone > 31, Temp > 90) %>% summary()
+```
+
+```{r}
+quiz1data %>% filter(Month == 6) %>% summary()
+```
+
+```{r}
+quiz1data %>% filter(Month == 5) %>% summary()
+```
+
+```{r}
+x <- c(1,2,3)
+y <- c(7,8,9)
+rbind(x,y)
+```
+
+```{r}
+a <- 1:4
+b <- 2:3
+a+b
+```
+
+```{r}
+library(swirl)
+```
+
+```{r}
+rm(list=ls())
+swirl()
+anthonypicazares@gmail.com
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

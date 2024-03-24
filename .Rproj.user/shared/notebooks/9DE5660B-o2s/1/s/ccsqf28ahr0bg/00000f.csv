@@ -1,0 +1,8 @@
+"0","rev <- read_xlsx(""C:\\Users\\all\\Downloads\\revving.xlsx"")"
+"2","Error in exists(cacheKey, where = .rs.WorkingDataEnv, inherits = FALSE) : 
+  invalid first argument
+"
+"2","Error in assign(cacheKey, frame, .rs.CachedDataEnv) : 
+  attempt to use zero-length variable name
+"
+"0","idle <- read_xlsx(""C:\\Users\\all\\Downloads\\idle.xlsx"")"
